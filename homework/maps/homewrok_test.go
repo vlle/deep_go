@@ -9,32 +9,103 @@ import (
 
 // go test -v homework_test.go
 
+/*
+type OrderedMap struct { ... }
+
+func NewOrderedMap() OrderedMap                      // создать упорядоченный словарь
+func (m \*OrderedMap) Insert(key, value int)          // добавить элемент в словарь
+func (m \*OrderedMap) Erase(key int)                  // удалить элемент из словари
+func (m \*OrderedMap) Contains(key int) bool          // проверить существование элемента в словаре
+func (m \*OrderedMap) Size() int                      // получить количество элементов в словаре
+func (m \*OrderedMap) ForEach(action func(int, int))  // применить функцию к каждому элементу словаря от меньшего к большему
+*/
+
 type OrderedMap struct {
-	// need to implement
+	l    *OrderedMap
+	r    *OrderedMap
+	node *struct {
+		key int
+		val int
+	}
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{} // need to implement
+	return OrderedMap{
+		// set:  false,
+	}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
-	// need to implement
+	if m.node == nil {
+		m.node = &struct {
+			key int
+			val int
+		}{
+			key: key,
+			val: value,
+		}
+		return
+	}
+	if key > m.node.key {
+		if m.r == nil {
+			r := NewOrderedMap()
+			m.r = &r
+		}
+		m.r.Insert(key, value)
+	} else if key < m.node.key {
+		if m.l == nil {
+			l := NewOrderedMap()
+			m.l = &l
+		}
+		m.l.Insert(key, value)
+	}
 }
 
 func (m *OrderedMap) Erase(key int) {
-	// need to implement
+	if m == nil || m.node == nil {
+		return
+	}
+
+	if m.node.key == key {
+		m.node = nil
+	} else if key < m.node.key {
+		m.l.Erase(key)
+	} else if key > m.node.key {
+		m.r.Erase(key)
+	}
 }
 
 func (m *OrderedMap) Contains(key int) bool {
-	return false // need to implement
+	if m == nil || m.node == nil {
+		return false
+	}
+	if m.node.key == key {
+		return true
+	} else if key < m.node.key {
+		return m.l.Contains(key)
+	} else if key > m.node.key {
+		return m.r.Contains(key)
+	}
+	return false
 }
 
 func (m *OrderedMap) Size() int {
-	return 0 // need to implement
+	if m == nil {
+		return 0
+	}
+	if m.node == nil {
+		return m.l.Size() + m.r.Size()
+	}
+	return 1 + m.l.Size() + m.r.Size()
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
-	// need to implement
+	if m == nil || m.node == nil {
+		return
+	}
+	m.l.ForEach(action)
+	action(m.node.key, m.node.val)
+	m.r.ForEach(action)
 }
 
 func TestCircularQueue(t *testing.T) {
